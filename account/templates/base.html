@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %} {% endblock %}</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<!-- Google font-->
+	<link href="//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+	<!-- Custom CSS-->
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" href="{% static 'account/css/account.css' %}">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<!-- Popper JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+	<!-- Confirmation Js -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-confirmation2/dist/bootstrap-confirmation.min.js"></script>
+	<!-- Custom Js -->
+	<script src="{% static 'js/custom.js' %}"></script>
+	{% block head %} {% endblock %}
+</head>
+{% load static %}
+
+<body style="background: url({% static 'images/bg.jpg' %}) fixed;">
+	<div class="container">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			<a style="font-family: 'Lobster', cursive;" class="navbar-brand" href="/">Community Blog</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+				aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav ml-auto">
+					{% block navbar %} {% endblock %}
+					{% if request.user.is_authenticated %}
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+								class="fas fa-user"></i>&nbsp;
+							{% if request.user.first_name or request.user.last_name %}
+							{{request.user.first_name}} {{request.user.last_name}}
+							{% else %}
+							{{request.user.username}}
+							{% endif %}
+						</a>
+						<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+							<a class="dropdown-item" href="{% url 'account:view_profile' request.user %}"><i
+									class="fas fa-eye"></i>&nbsp;&nbsp;View Profile</a>
+							<a class="dropdown-item" href="{% url 'account:password_change' %}"><i
+									class="fas fa-key"></i>&nbsp;&nbsp;Change Password</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" href="{% url 'account:logout' %}"><i
+									class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logut</a>
+						</div>
+					</li>
+					{% endif %}
+					{% if not request.user.is_authenticated and not "/account/login" in request.get_full_path %}
+					<form method="post" action="{% url 'account:login' %}" class="form-inline my-2 my-lg-0">
+						{% csrf_token %}
+						<input class="form-control mr-sm-2" type="text" name="username" placeholder="Username" required>
+						<input class="form-control mr-sm-2" type="password" name="password" placeholder="Password"
+							required>
+						<button type="submit" class="btn btn-primary">Login <i class="fas fa-sign-in-alt"></i></button>
+					</form>
+					{% endif %}
+					{% if not request.user.is_authenticated and not "/account/register" in request.get_full_path %}
+					<li class="nav-item ml-2">
+						<a class="btn btn-primary" href="{% url 'account:register' %}">Register <i
+								class="fa fa-user-plus" aria-hidden="true"></i></a>
+					</li>
+					{% endif %}
+				</ul>
+			</div>
+		</nav>
+		<div class="clearfix"></div>
+		<section class="wrapper_section py-5">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="row">
+						<div class="col-md-6 offset-md-3">
+							{% if messages %}
+							{% for message in messages %}
+							{% if message.tags %}
+							<div class="alert {{ message.tags }} {% endif %} alert-dismissible">
+								<button type="button" class="close" data-dismiss="alert">&times;</button>
+								{% if message.tags == "alert-danger" %}
+								<strong> Error: </strong>
+								{{ message|safe|linebreaksbr }}
+								{% elif message.tags == "alert-success" or message.tags == "alert-info" %}
+								<strong> Success: </strong>
+								{{ message|safe|linebreaksbr }}
+								{% elif message.tags == "alert-warning" %}
+								<strong> Warning: </strong>
+								{{ message|safe|linebreaksbr }}
+								{% endif %}
+							</div>
+							{% endfor %}
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2">
+					{% block left_sidebar %} {% endblock %}
+				</div>
+				<div class="col-md-8">
+					{% block content %} {% endblock %}
+				</div>
+				<div class="col-md-2">
+					{% block right_sidebar %} {% endblock %}
+				</div>
+			</div>
+		</section>
+		<div class="clearfix"></div>
+		<!-- Footer -->
+		<footer style="color:#fff" class="page-footer font-small bg-dark">
+			<!-- Footer Links -->
+			<div class="container text-center text-md-left">
+
+				<!-- Grid row -->
+				<div class="row">
+
+					<!-- Grid column -->
+					<div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+
+						<!-- Content -->
+						<h6 class="text-uppercase font-weight-bold mt-2">Donate Us</h6>
+						<hr class="deep-purple accent-2 mb-4 mt-0 d-inline-block mx-auto" style="width: 60px;">
+						<div class="paypal_button">
+				          <!-- Set up a container element for the button -->
+				          <div id="paypal-button-container"></div>
+
+				          <!-- Include the PayPal JavaScript SDK -->
+				          <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+
+				          <script>
+				            // Render the PayPal button into #paypal-button-container
+				            paypal
+				              .Buttons({
+				                // Set up the transaction
+				                createOrder: function(data, actions) {
+				                  return actions.order.create({
+				                    purchase_units: [
+				                      {
+				                        amount: {
+				                          value: "0.01"
+				                        }
+				                      }
+				                    ]
+				                  });
+				                },
+
+				                // Finalize the transaction
+				                onApprove: function(data, actions) {
+				                  return actions.order.capture().then(function(details) {
+				                    // Show a success message to the buyer
+				                    alert(
+				                      "Transaction completed by " +
+				                        details.payer.name.given_name +
+				                        "!"
+				                    );
+				                  });
+				                }
+				              })
+				              .render("#paypal-button-container");
+				          </script>
+				        </div>
+
+					</div>
+					<!-- Grid column -->
+
+					<!-- Grid column -->
+					<div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-2 mb-2">
+
+						<!-- Links -->
+						<h6 class="text-uppercase font-weight-bold">Products</h6>
+						<hr class="deep-purple accent-2 mb-4 mt-0 d-inline-block mx-auto" style="width: 60px;">
+						<p>
+							<a href="#">Product 1</a>
+						</p>
+						<p>
+							<a href="#">Product 2</a>
+						</p>
+						<p>
+							<a href="#">Product 3</a>
+						</p>
+						<p>
+							<a href="#">Product 4</a>
+						</p>
+
+					</div>
+					<!-- Grid column -->
+
+					<!-- Grid column -->
+					<div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-2 mt-2">
+
+						<!-- Links -->
+						<h6 class="text-uppercase font-weight-bold">Useful links</h6>
+						<hr class="deep-purple accent-2 mb-4 mt-0 d-inline-block mx-auto" style="width: 60px;">
+						<p>
+							<a href="#">Link 1</a>
+						</p>
+						<p>
+							<a href="#">Link 2</a>
+						</p>
+						<p>
+							<a href="#">Link 3</a>
+						</p>
+						<p>
+							<a href="#">Link 4</a>
+						</p>
+
+					</div>
+					<!-- Grid column -->
+
+					<!-- Grid column -->
+					<div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-2 mt-2">
+
+						<!-- Links -->
+						<h6 class="text-uppercase font-weight-bold mt-2">Contact</h6>
+						<hr class="deep-purple accent-2 mb-4 mt-0 d-inline-block mx-auto" style="width: 60px;">
+						<p>
+							<i class="fas fa-home mr-3"></i> Dhaka, Bangladesh</p>
+						<p>
+							<i class="fas fa-envelope mr-3"></i> almasud.arm@gmail.com</p>
+						<p>
+							<i class="fas fa-phone mr-3"></i> + 880 1737 606053</p>
+
+					</div>
+					<!-- Grid column -->
+
+				</div>
+				<!-- Grid row -->
+
+			</div>
+			<!-- Footer Links -->
+
+			<!-- Copyright -->
+			<div class="footer-copyright text-center py-3">&copy; 2019 Copyright:
+				<a target="_blank" href="https://facebook.com/almasud.arm"> Abdullah Almasud</a>
+			</div>
+			<!-- Copyright -->
+
+		</footer>
+		<!-- Footer -->
+	</div>
+</body>
+
+</html>

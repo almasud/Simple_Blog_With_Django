@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %} Registration {% endblock %}
+{% block content %}
+<div class="row">
+	<div class="col-md-8 offset-md-2">
+		<h2>Register an account</h2>
+		<form method="post">
+			{% csrf_token %}
+			{% for field in form %}
+			<div class="form-group">
+				{{ field.label_tag }}
+				{{ field }}
+				{% for error in field.errors %}
+				<p class="text-danger">
+					<strong>Error:</strong>
+					{{ error|escape }}
+				</p>
+				{% endfor %}
+				{% if field.help_text %}
+				<small class="form-text text-muted">
+					{{ field.help_text|safe }}
+				</small>
+				{% endif %}
+			</div>
+			{% endfor %}
+			<button type="reset" class="btn btn-secondary">Clear</button>
+			<button type="submit" class="btn btn-primary">Register</button>
+		</form>
+	</div>
+</div>
+{% endblock content %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title%} {{post.title}} {% endblock %}
+{%block content %}
+<article class="post">
+	{% if request.user.username == post.author.username %}
+		<div class="float-right">
+			<a title="Edit post" class="btn btn-primary" href="{% url 'blog:post_update' post.pk %}"><i
+					class="far fa-edit"></i></a>
+			{% if not post.published %}
+			<a class="btn btn-success" href="{% url 'blog:post_published' post.pk %}" data-toggle="confirmation"
+				data-title="Publish this post?" data-popout="true" data-singleton="true"><i class="fas fa-upload"></i></a>
+			{% endif %}
+			<form id="delete_form" action="{% url 'blog:post_delete' post.pk %}" style="display:inline-block" method="post">
+				{% csrf_token %}
+				<button type="submit" class="btn btn-danger" data-toggle="confirmation" data-title="Delete this post?"
+					data-popout="true" data-singleton="true">
+					<i class="fas fa-trash-alt"></i>
+				</button>
+			</form>
+		</div>
+	{% endif %}
+	<h2>{{post.title}}</h2>
+	<div class="date">
+		{% if not post.published %}
+		<p>Created: {{post.created|date:'d-m-Y'}}</p>
+		{% else %}
+		<p>Published: {{post.published}}</p>
+		{% endif %}
+		<p>Posted by:
+			{% if post.author.first_name or post.author.last_name %}
+			<a href="{% url 'account:view_profile' post.author.username %}">{{post.author.first_name}}
+				{{post.author.last_name}}</a>
+			{% else %}
+			<a href="{% url 'account:view_profile' post.author.username %}">{{post.author.username}}</a>
+			{% endif %}
+		</p>
+	</div>
+	{% if post.photo %}
+	<div>
+		<img src="{{ post.photo.url }}" alt="Post Photo" class="rounded" style="width:auto; height: 250px">
+	</div><br>
+	{% endif %}
+	<p>{{post.text|linebreaksbr}}</p>
+</article>
+<hr>
+<section class="comment_section">
+	<div class="row">
+		<div class="col-md-6">
+			{% if request.user.is_authenticated %}
+			<div class="add_comment">
+				<h4>Add comment</h4>
+				<form method="POST">
+					{% csrf_token %}
+					{% for field in form %}
+					<div class="form-group">
+						{{ field.label_tag }}
+						{{ field }}
+						{% for error in field.errors %}
+						<p class="text-danger">
+							<strong>Error:</strong>
+							{{ error|escape }}
+						</p>
+						{% endfor %}
+						{% if field.help_text %}
+						<small class="form-text text-muted">
+							{{ field.help_text|safe }}
+						</small>
+						{% endif %}
+					</div>
+					{% endfor %}
+					<button type="submit" class="btn btn-success" name="submit" value="save">Add comment</button>
+				</form>
+			</div>
+			{% endif %}
+		</div>
+	</div><br>
+	<div class="row">
+		<div class="col-md-6">
+			<h4>Comments of this post:</h4>
+			{% for comment in post.comments.all %}
+			{% if comment.approved_comment or request.user == comment.author or request.user == post.author %}
+			<div class="comment">
+				<strong>{{comment.author}}</strong>
+				<div class="date">
+					{{comment.created}}
+					<!-- For approve and delete button -->
+					{% if not comment.approved_comment and request.user == post.author %}
+					<a href="{% url 'blog:comment_approve'  post_pk=comment.post.pk comment_pk=comment.pk %}"
+						class="btn btn-primary btn-sm" data-toggle="confirmation" data-title="Approve this comment?"
+						data-popout="true" data-singleton="true"><i class="fas fa-check"></i></a>
+					{% endif %}
+					{% if request.user == post.author or request.user == comment.author %}
+					<a href="{% url 'blog:comment_remove' post_pk=comment.post.pk comment_pk=comment.pk %}"
+						class="btn btn-danger btn-sm" data-toggle="confirmation" data-title="Delete this comment?"
+						data-popout="true" data-singleton="true"><i class="fas fa-trash-alt"></i></a>
+					{% endif %}
+				</div>
+				<p>{{comment.text|linebreaksbr}}</p>
+			</div>
+			{% endif %}
+			{% empty %}
+			<p>No comments here yet :(</p>
+			{% endfor %}
+		</div>
+	</div>
+</section>
+{% endblock content %}

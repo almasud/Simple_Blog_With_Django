@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %} Login {% endblock %}
+{% block content %}
+<section class="login_section">
+	<div class="row">
+		<div class="col-md-8 offset-md-1">
+			{% if form.errors %}
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">
+				<strong>Error:</strong>
+				Your username and password didn't match.
+				Please try again.
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			{% endif %}
+			{% if next %}
+			{% if user.is_authenticated %}
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">
+				<strong>Error:</strong>
+				Your account doesn't have access to this page. To proceed, please login with an account that has access.
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			{% endif %}
+			{% endif %}
+			<h4>You must login to access your account.</h4>
+			<form method="post" action="{% url 'account:login' %}">
+				{% csrf_token %}
+				{% for field in form %}
+				<div class="form-group">
+					{{ field.label_tag }}
+					{{ field }}
+					{% if field.help_text %}
+					<small class="form-text text-muted">
+						{{ field.help_text|safe }}
+					</small>
+					{% endif %}
+				</div>
+				{% endfor %}
+				<button type="submit" class="btn btn-primary btn-block">Submit</button>
+				{% if next %}
+				<input type="hidden" name="next" value="{{ next }}">
+				{% endif %}
+			</form><br>
+			<p class="text-center">Forgot password? <a href="{% url 'account:password_reset' %}">Reset it!</a></p>
+			<p class="text-center">Not member? <a href="{% url 'account:register' %}">Register</a></p>
+		</div>
+	</div>
+</section>
+{% endblock content %}

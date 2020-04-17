@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %} Reset password complete {% endblock %}
+{% block content %} 
+<section class="login_section">
+	<div class="row">
+		<div class="col-md-8">
+			<h4>Password reset complete</h4>
+			<small>
+				Your password has been set. You may go ahead and <a href="{% url 'account:login' %}">Login</a> now.
+			</small>
+		</div>
+	</div>
+</section>	
+{% endblock content %}

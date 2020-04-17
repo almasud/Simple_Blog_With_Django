@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %} Blog {% endblock %}
+{% block navbar %}
+{% if request.user.is_authenticated %}
+<li class="nav-item mr-2">
+	<a title="Add a post" class="btn btn-primary" href="{% url 'blog:post_add' %}"><i class="fas fa-plus"></i>Add a
+		post</a>
+</li>
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="col-md-12">
+	<nav>
+		<div class="nav nav-tabs" id="nav-tab" role="tablist">
+			<a class="nav-item nav-link {% if not "/publish" in request.get_full_path and not "/draft" in request.get_full_path %} active {% endif %}" id="nav-all_post-tab" data-toggle="tab" href="#nav-all_post" role="tab"
+				aria-controls="nav-all_post" aria-selected="true">All post</a>
+			{% if request.user.is_authenticated %}
+			<a class="nav-item nav-link {% if request.user.is_authenticated and "/publish" in request.get_full_path %} active {% endif %}" id="nav-published_post-tab" data-toggle="tab" href="#nav-published_post"
+				role="tab" aria-controls="nav-published_post" aria-selected="true">Publish post</a>
+			<a class="nav-item nav-link {% if request.user.is_authenticated and "/draft" in request.get_full_path %} active {% endif %}" id="nav-unpublish_post-tab" data-toggle="tab" href="#nav-unpublish_post"
+				role="tab" aria-controls="nav-unpublish_post" aria-selected="false">Unpublish post</a>
+			{% endif %}
+		</div>
+	</nav>
+	<script type="text/javascript">
+		// For Published post
+		document.getElementById("nav-all_post-tab").onclick = function () {
+			window.open("{% url 'blog:post_view' %}", "_self");
+			this.addAttribute("class", "active");
+		}
+		// For Published post
+		document.getElementById("nav-published_post-tab").onclick = function () {
+			window.open("{% url 'blog:published_post_view' %}", "_self");
+		}
+		// For Unpublish post
+		document.getElementById("nav-unpublish_post-tab").onclick = function () {
+			window.open("{% url 'blog:draft_post_view' %}", "_self");
+		}
+	</script>
+	{% if draft_posts %}
+	{% for post in draft_posts %}
+	<article class="post">
+		<h2><a
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">{{post.title}}</a>
+		</h2>
+		<div class="date">
+			<p>Created: {{post.created|date:'d-m-Y'}}</p>
+			<p>Posted by:
+				{% if post.author.first_name or post.author.last_name %}
+				<a href="{% url 'account:view_profile' post.author.username %}">{{post.author.first_name}}
+					{{post.author.last_name}}</a>
+				{% else %}
+				<a href="{% url 'account:view_profile' post.author.username %}">{{post.author.username}}</a>
+				{% endif %}
+			</p>
+		</div>
+		{% if post.photo %}
+		<div>
+			<a
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">
+				<img src="{{ post.photo.url }}" alt="Post Photo" class="rounded" style="width:auto; height: 250px">
+			</a>
+		</div><br>
+		{% endif %}
+		{% if post.text|length > 500 %}
+		<p>{{post.text|linebreaksbr|truncatewords:50}} <a class="btn btn-success btn-sm"
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">Red
+				More</a></p>
+		{% else %}
+		<p>{{post.text|linebreaksbr}}</p>
+		{% endif %}
+	</article>
+	{% endfor %}
+	{% elif published_posts %}
+	{% for post in published_posts %}
+	<article class="post">
+		<h2><a
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">{{post.title}}</a>
+		</h2>
+		<div class="date">
+			<p>Published: {{post.published}}</p>
+			<p>Posted by:
+				{% if post.author.first_name or post.author.last_name %}
+				<a href="{% url 'account:view_profile' post.author.username %}">{{post.author.first_name}}
+					{{post.author.last_name}}</a>
+				{% else %}
+				<a href="{% url 'account:view_profile' post.author.username %}">{{post.author.username}}</a>
+				{% endif %}
+			</p>
+		</div>
+		{% if post.photo %}
+		<div>
+			<a
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">
+				<img src="{{ post.photo.url }}" alt="Post Photo" class="rounded" style="width:auto; height: 250px">
+			</a>
+		</div><br>
+		{% endif %}
+		{% if post.text|length > 500 %}
+		<!-- for post length greater than 50 words -->
+		<p>{{post.text|linebreaksbr|truncatewords:50}} <a class="btn btn-success btn-sm"
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">Red
+				More</a></p>
+		{% else %}
+		<!-- for post length less than 50 words -->
+		<p>{{post.text|linebreaksbr}}</p>
+		{% endif %}
+		<!-- Comment link start -->
+		{% if post.comments.count %}
+		{% if request.user == post.author or request.user == comment.author %}
+		<a class="text-primary"
+			href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">
+			{% if post.comments.count == 1 %}
+			{{post.comments.count}} Comment</a>.
+		{% else %}
+		{{post.comments.count}} Comments</a>.
+		{% endif %}
+		{% elif post.comments.approved_comment_count > 0 %}
+		<a class="text-primary"
+			href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">
+			{% if post.comments.approved_comment_count == 1 %}
+			{{post.comments.approved_comment_count}} Comment</a>.
+		{% else %}
+		{{post.comments.approved_comment_count}} Comments</a>.
+		{% endif %}
+		{% else %}
+		<p class="text-primary">No comments.</p>
+		{% endif %}
+		{% else %}
+		<p class="text-primary">No comments.</p>
+		{% endif %}
+		<!-- Comment link end -->
+	</article>
+	{% endfor %}
+	{% elif posts %}
+	{% for post in posts %}
+	<article class="post">
+		<h2><a
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">{{post.title}}</a>
+		</h2>
+		<div class="date">
+			<p>Published: {{post.published}}</p>
+			<p>Posted by:
+				{% if post.author.first_name or post.author.last_name %}
+				<a href="{% url 'account:view_profile' post.author.username %}">{{post.author.first_name}}
+					{{post.author.last_name}}</a>
+				{% else %}
+				<a href="{% url 'account:view_profile' post.author.username %}">{{post.author.username}}</a>
+				{% endif %}
+			</p>
+		</div>
+		{% if post.photo %}
+		<div>
+			<a
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">
+				<img src="{{ post.photo.url }}" alt="Post Photo" class="rounded" style="width:auto; height: 250px">
+			</a>
+		</div><br>
+		{% endif %}
+		{% if post.text|length > 500 %}
+		<!-- for post length greater than 50 words -->
+		<p>{{post.text|linebreaksbr|truncatewords:50}} <a class="btn btn-success btn-sm"
+				href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">Red
+				More</a></p>
+		{% else %}
+		<!-- for post length less than 50 words -->
+		<p>{{post.text|linebreaksbr}}</p>
+		{% endif %}
+		<!-- Comment link start -->
+		{% if post.comments.count %}
+		{% if request.user == post.author or request.user == comment.author %}
+		<a class="text-primary"
+			href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">
+			{% if post.comments.count == 1 %}
+			{{post.comments.count}} Comment</a>.
+		{% else %}
+		{{post.comments.count}} Comments</a>.
+		{% endif %}
+		{% elif post.comments.approved_comment_count > 0 %}
+		<a class="text-primary"
+			href="{% url 'blog:post_details_view' post.created|date:"Y" post.created|date:"m" post.created|date:"d" post.slug %}">
+			{% if post.comments.approved_comment_count == 1 %}
+			{{post.comments.approved_comment_count}} Comment</a>.
+		{% else %}
+		{{post.comments.approved_comment_count}} Comments</a>.
+		{% endif %}
+		{% else %}
+		<p class="text-primary">No comments.</p>
+		{% endif %}
+		{% else %}
+		<p class="text-primary">No comments.</p>
+		{% endif %}
+		<!-- Comment link end -->
+	</article>
+	{% endfor %}
+	{% else %}
+	<div class="alert alert-info alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+		<strong>Opps!</strong> There are no post yet.
+	</div>
+	{% endif %}
+	<nav class="pagination_section" aria-label="...">
+		{% if is_paginated %}
+		<ul class="pagination justify-content-center">
+			{% if page_obj.has_previous %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+			</li>
+			{% else %}
+			<li class="page-item disabled">
+				<span class="page-link">Previous</span>
+			</li>
+			{% endif %}
+			{% for i in paginator.page_range %}
+			{% if page_obj.number == i %}
+			<li class="page-item active">
+				<span class="page-link">
+					{{ i }}
+					<span class="sr-only">(current)</span>
+				</span>
+			</li>
+			{% else %}
+			<li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+			{% endif %}
+			{% endfor %}
+			{% if page_obj.has_next %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+			</li>
+			{% else %}
+			<li class="page-item disabled">
+				<span class="page-link">Next</span>
+			</li>
+			{% endif %}
+		</ul>
+		{% endif %}
+	</nav>
+</div>
+{% endblock content %}

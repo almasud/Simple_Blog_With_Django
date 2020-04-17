@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %} Add a post {% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-9">
+        {% if form.instance.id %}
+        <h2>Update a post</h2>
+        {% else %}
+        <h2>Write a post</h2>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                <p class="text-danger">
+                    <strong>Error:</strong>
+                    {{ error|escape }}
+                </p>
+                {% endfor %}
+                {% if field.help_text %}
+                <small class="form-text text-muted">
+                    {{ field.help_text|safe }}
+                </small>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if form.instance.photo %}
+            <div class="form-group">
+                <label for="photo-check">Currently:</label>
+                <small>
+                    <a href="{{ form.instance.photo.url }}">
+                        {{ form.instance.photo }}
+                    </a>
+                </small>
+                <div class="form-check d-md-inline-block">
+                    <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" name="remove_checked">
+                        Clear
+                    </label>
+                </div>
+            </div>
+            {% endif %}
+            <button type="reset" class="btn btn-secondary">Clear</button>
+            {% if form.instance.id %}
+            <button type="submit" class="btn btn-primary" name="submit">Update</button>
+            {% else %}
+            <button type="submit" class="btn btn-primary" name="submit" value="save">Save</button>
+            <button type="submit" class="btn btn-success" name="submit" value="publish">Publish</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

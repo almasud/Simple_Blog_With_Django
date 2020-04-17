@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if user.first_name or user.last_name %}
+{{user.first_name}} {{user.last_name}}
+{% else %}
+Profile
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="profile_section">
+	<div class="row">
+		<div class="col-md-8 offset-md-1">
+			{% if user %}
+			<div class="profile_section">
+				<div class="card">
+					{% if user.userprofile.image %}
+					<img class="card-img-top ml-5" src="{{user.userprofile.image.url}}" alt="Card image cap">
+					{% else %}
+					<img class="card-img-top ml-5" src="/static/account/images/avatar.png" alt="Card image cap">
+					{% endif %}
+					<div class="card-body">
+						<a href="{% url 'account:edit_profile'%}" class="btn btn-primary mb-4 ml-1">Edit
+							Profile</a><br>
+						<h5 class="card-title">{{user.first_name}} {{user.last_name}}</h5>
+						<p class="card-text">Description: <span style="font-size:14px;"
+								class="text-secondary">{{user.userprofile.description|linebreaksbr}}</span></p>
+					</div>
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item">Email: <span class="text-secondary">{{user.email}}</span></li>
+						<li class="list-group-item">Username: <span class="text-secondary">{{user.username}}</span></li>
+						<li class="list-group-item">City: <span class="text-secondary">{{user.userprofile.city}}</span>
+						</li>
+						<li class="list-group-item">
+							{% if user.userprofile.mobile_number %}
+							Mobile number: <span class="text-secondary">{{user.userprofile.mobile_number}}</span>
+							{% else %}
+							Phone: <span class="text-secondary">Not set yet.</span>
+							{% endif %}
+						</li>
+					</ul>
+					<div class="card-body">
+						Website: <a target="_blank" href="{{user.userprofile.website}}"
+							class="card-link ">{{user.userprofile.website}}</a>
+					</div>
+				</div>
+				<!-- {% if user.userprofile.image %}
+				<img src="{{user.userprofile.image.url}}" alt="Profile Image" class="rounded  d-block"><br>
+				{% else %}
+				<img src="/static/account/images/avatar.png" alt="Profile Image" class="rounded  d-block"><br>
+				{% endif %}
+				<a href="{% url 'account:edit_profile'%}" class="btn btn-secondary">Edit Profile</a><br><br>
+				<p class="text-success">
+					Full Name: {{user.first_name}} {{user.last_name}}<br>
+					Username: {{user.username}}<br>
+					Email: {{user.email}}<br>
+					Description: {{user.userprofile.description}}<br>
+					City: {{user.userprofile.city}}<br>
+					{% if user.userprofile.mobile_number %}
+					Mobile number: {{user.userprofile.mobile_number}}<br>
+					{% else %}
+					Phone: Not set yet.<br>
+					{% endif %}
+					Website: <a target="_blank" href="{{user.userprofile.website}}">{{user.userprofile.website}}</a><br>
+				</p> -->
+			</div>
+			{% endif %}
+		</div>
+	</div>
+</section>
+{% endblock content %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block head %} 
+	<title>Logout</title>
+{% endblock head %}
+{% block body %} 
+<section class="login_section container">
+	<div class="row">
+		<div class="col-md-8">
+			<h2 class="text-primary">You are logout!</h2>
+			<p class="text-success">
+				You can login 
+				<a class="btn btn-danger" href="{% url 'account:login' %}">here</a>
+			</p>
+		</div>
+	</div>
+</section>	
+{% endblock body %}
